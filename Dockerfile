@@ -9,8 +9,6 @@ ENV HOME="/" \
     OS_FLAVOUR="alpine" \
     OS_NAME="linux"
 
-ENV 
-
 ARG AWS_VERSION="1.17.3"
 ARG KUBE_VERSION="v1.17.1"
 

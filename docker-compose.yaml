@@ -4,7 +4,9 @@ services:
     build: .
     image: aws_cli_v2-kubectl
     entrypoint: tail -f /dev/null
-    environment:
-      - AWS_ACCESS_KEY_ID=value
-      - AWS_SECRET_ACCESS_KEY=value
-      - AWS_DEFAULT_REGION=value
+    # add those to .gitignore via file -> https://docs.docker.com/compose/environment-variables/set-environment-variables/#use-the-env_file-attribute
+    env_file: aws.access.env
+    # environment:
+    #   - AWS_ACCESS_KEY_ID=value
+    #   - AWS_SECRET_ACCESS_KEY=value
+    #   - AWS_DEFAULT_REGION=value
