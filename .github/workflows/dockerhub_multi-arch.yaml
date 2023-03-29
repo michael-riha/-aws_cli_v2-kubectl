@@ -5,7 +5,7 @@ on:
     branches:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
       # - master
-      - feat/build-test/*
+      - feat/build-test
     tags:
       - v*
 
