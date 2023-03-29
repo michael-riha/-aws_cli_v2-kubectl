@@ -27,3 +27,8 @@ docker buildx build --push \
 ## added `github`-Actions for publishing on `docker`-Hub
 
 https://github.com/michael-riha/aws_cli_v2-kubectl -> https://hub.docker.com/repository/docker/miriha/aws_cli_v2-kubectl/general
+
+
+## `aws`
+
+`aws configure list`
