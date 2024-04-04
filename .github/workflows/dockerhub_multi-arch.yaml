@@ -1,0 +1,70 @@
+name:  🏗️ Build& 🚢 Push to DockerHub Container Registry (multi-arch)
+run-name: ${{ github.actor }} is pushing an image to ECR with GitHub Actions (multi-arch) 🚀
+on:
+  push:
+    branches:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+      # - master
+      - feat/build-tests
+    tags:
+      - v*
+
+# https://github.com/bonrepublic/cicd-prototype-to-ecr/settings/secrets/actions
+env:
+  DOCKER_REGISTRY: miriha
+  CONTAINER_NAME: aws_cli_v2-kubectl
+
+# https://github.com/marketplace/actions/push-to-registry
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+    - name: Debug env variables
+      run: |
+        echo $DOCKER_REGISTRY/$CONTAINER_NAME/$GITHUB_RUN_ID
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{env.DOCKER_REGISTRY}}
+        # https://docs.docker.com/docker-hub/access-tokens/#use-an-access-token
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    #FIX: https://github.com/actions/actions-runner-controller/issues/893#issuecomment-1136924711
+    - name: Set up Docker Context for Buildx
+      run: |
+        docker context create buildx-context
+    - name: Use Docker Context for Buildx
+      id: use-buildx-context
+      run: |
+        docker context use buildx-context
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        buildkitd-flags: --debug
+        endpoint: buildx-context
+    - name: Tag and push a container image
+      # push all tags https://stackoverflow.com/a/56905333
+      id: tag-and-push-image
+      run: |
+        # improve tag naming https://levelup.gitconnected.com/gitops-ci-cd-using-github-actions-and-argocd-on-kubernetes-909d85d37746
+        git_hash=$(git rev-parse --short "$GITHUB_SHA")
+        echo $DOCKER_REGISTRY/$CONTAINER_NAME:$GITHUB_RUN_ID
+        # https://askubuntu.com/questions/706436/what-does-a-hash-after-a-variable-name-do-as-an-operator-in-bash
+        echo "----${GITHUB_REF##*/}----& $git_hash --- Full Ref: ${GITHUB_REF}"
+        echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+        echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+        export BUILDKIT_COLORS="run=123,20,245:error=yellow:cancel=blue:warning=white"
+        docker --version
+        docker version
+        docker --context=buildx-context buildx create --use
+        docker --context=buildx-context buildx ls
+        # show us the repo
+        ls -l
+        # just tag from main-branch main as latest https://docs.github.com/en/actions/learn-github-actions/expressions
+        docker buildx build --push --progress=plain --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY/$CONTAINER_NAME:$GITHUB_RUN_ID -t $DOCKER_REGISTRY/$CONTAINER_NAME:latest . 
+        docker buildx imagetools inspect $DOCKER_REGISTRY/$CONTAINER_NAME:latest
+        # docker push $DOCKER_REGISTRY/$CONTAINER_NAME  --all-tags
