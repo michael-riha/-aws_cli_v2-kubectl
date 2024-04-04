@@ -24,7 +24,6 @@ RUN (cd /usr/local/lib/aws-cli; for a in *.so*; do test -f /lib/$a && rm $a; don
 FROM alpine:3.17.2
 LABEL author: "Michael Riha <michael.riha@gmail.com>"
 
-
 ARG TARGETARCH
 
 ENV HOME="/" \
