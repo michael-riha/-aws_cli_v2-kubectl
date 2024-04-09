@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  awscli-kubctl:
+  awscli-kubectl:
     build: .
     image: aws_cli_v2-kubectl
     entrypoint: tail -f /dev/null

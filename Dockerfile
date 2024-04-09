@@ -68,3 +68,21 @@ RUN curl -LO "https://dl.k8s.io/release/v1.26.3/bin/linux/${OS_ARCH}/kubectl" &&
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     kubectl version --client
 
+# https://github.com/alpine-docker/helm/blob/master/Dockerfile
+ENV BASE_URL="https://get.helm.sh"
+ENV HELM_VERSION="3.0.0"
+# https://helm.sh/docs/intro/install/
+RUN wget ${BASE_URL}/helm-v${HELM_VERSION}-linux-${OS_ARCH}.tar.gz -O - | tar -xz && \
+    mv linux-${OS_ARCH}/helm /usr/bin/helm && \
+    chmod +x /usr/bin/helm && \
+    rm -rf linux-${OS_ARCH}
+
+RUN apk add k9s
+
+
+#INSTALL `kubeseal` https://github.com/bitnami-labs/sealed-secrets#linux
+ARG KUBESEAL_VERSION="0.24.2"
+RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-${OS_ARCH}.tar.gz && \
+  tar -xvzf kubeseal-${KUBESEAL_VERSION}-linux-${OS_ARCH}.tar.gz kubeseal && \
+  install -m 755 kubeseal /usr/local/bin/kubeseal && \
+  rm kubeseal kubeseal-${KUBESEAL_VERSION}-linux-${OS_ARCH}.tar.gz
